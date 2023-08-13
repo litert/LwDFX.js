@@ -1,0 +1,12 @@
+/.git/
+/.vscode/
+/.gitignore
+/.npmignore
+/.eslintrc
+/tsconfig.json
+/node_modules/
+/examples/
+/test/
+/temp/
+/package-lock.json
+/init-test-data.sh

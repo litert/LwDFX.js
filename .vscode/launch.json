@@ -1,0 +1,52 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[LiteRT/LwDFX.js][TCP] Debug Client",
+            "program": "${workspaceFolder}/src/examples/tcp/client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[LiteRT/LwDFX.js][TCP] Debug Server",
+            "program": "${workspaceFolder}/src/examples/tcp/server.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[LiteRT/LwDFX.js][TLS] Debug Client",
+            "program": "${workspaceFolder}/src/examples/tls/client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[LiteRT/LwDFX.js][TLS] Debug Server",
+            "program": "${workspaceFolder}/src/examples/tls/server.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+    ]
+}

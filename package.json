@@ -1,0 +1,46 @@
+{
+  "name": "@litert/lwdfx",
+  "version": "1.0.1",
+  "description": "A TypeScript implement of light-weight data frame exchange protocol.",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublishOnly": "npm run rebuild",
+    "build": "tsc -v && tsc -p .",
+    "rebuild": "npm run clean && npm run lint && npm run build",
+    "build-watch": "tsc -v && tsc -w -p .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "mocha",
+    "clean": "rm -rf lib examples benchmarks test",
+    "lint": "eslint -c .eslintrc --ext '.ts' ./src",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "litert",
+    "lwdfx",
+    "protocol",
+    "frame"
+  ],
+  "author": "Angus.Fenying <fenying@litert.org> (https://fenying.net)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/litert/lwdfx.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/litert/lwdfx.js/issues"
+  },
+  "homepage": "https://github.com/litert/lwdfx.js#readme",
+  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.6",
+    "@commitlint/config-conventional": "^17.6.6",
+    "@litert/eslint-plugin-rules": "^0.1.5",
+    "@types/node": "^20.3.3",
+    "husky": "^8.0.3",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
