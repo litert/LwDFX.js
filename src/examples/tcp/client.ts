@@ -21,7 +21,7 @@ import * as LwDFX from '../../lib';
     const conn = await LwDFX.Tcp.connect({ alpWhitelist: ['demo', 'b2'] });
 
     console.log(`Connection[${conn.localAddress}:${conn.localPort}->${conn.remoteAddress}:${conn.remotePort}] connected using ${conn.alpName}`);
-    const data = Buffer.from(JSON.stringify({ action: 'GetMyName' }));
+    const data = new Array(3).fill(Buffer.from(JSON.stringify({ action: 'GetMyName' })));
     const timer = setInterval(() => {
 
         conn.write(data);

@@ -1,6 +1,6 @@
 {
   "name": "@litert/lwdfx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A TypeScript implement of light-weight data frame exchange protocol.",
   "main": "lib/index.js",
   "scripts": {

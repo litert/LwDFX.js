@@ -11,7 +11,7 @@ module.exports = {
             'gateway',
             'server',
             'protocol',
-            'decoder',
+            'encoder',
             'lint',
             'docs',
             'deps',

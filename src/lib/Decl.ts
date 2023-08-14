@@ -99,9 +99,9 @@ export interface IConnection {
     /**
      * Write a frame to the connection.
      *
-     * @param frame     The frame to write.
+     * @param frameChunks     The chunks of a frame to write.
      */
-    write(frame: Buffer): boolean;
+    write(frameChunks: Buffer | Buffer[]): boolean;
 
     /**
      * Close the connection.

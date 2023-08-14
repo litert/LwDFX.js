@@ -54,13 +54,34 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
         this.localPort = _socket.localPort!;
     }
 
-    public write(buf: Buffer): boolean {
+    public write(frameChunks: Buffer | Buffer[]): boolean {
+
+        if (frameChunks instanceof Buffer) {
+
+            const header = Buffer.allocUnsafe(4);
+
+            header.writeUInt32LE(frameChunks.byteLength, 0);
+
+            this._socket.write(header);
+
+            return this._socket.write(frameChunks);
+        }
 
         const header = Buffer.allocUnsafe(4);
 
-        header.writeUInt32LE(buf.byteLength, 0);
+        const frameSize = frameChunks.reduce((s, c) => s + c.byteLength, 0);
+        header.writeUInt32LE(frameSize, 0);
 
-        return this._socket.write(header) && this._socket.write(buf);
+        this._socket.write(header);
+
+        let ret: boolean = true;
+
+        for (const chunk of frameChunks) {
+
+            ret = this._socket.write(chunk);
+        }
+
+        return ret;
     }
 
     public end(): boolean {
