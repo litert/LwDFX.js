@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,3 +76,17 @@ export const VERSION_1: number = 0x01;
  * @type uint8
  */
 export const NO_VERSION: number = 0xFF;
+
+/**
+ * The length of data frame header, in bytes.
+ *
+ * @type uint32
+ */
+export const DATA_FRAME_HEADER_LEN = 8;
+
+/**
+ * The magic of data frame header.
+ *
+ * @type uint32
+ */
+export const DATA_FRAME_MAGIC = 0x86989330;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
         super(socket, timeout);
 
-        this._decoder.maxFrameSize = maxFrameSize;
+        this._enc.maxFrameSize = maxFrameSize;
     }
 
     protected _handshake(
@@ -207,7 +207,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
         frame.writeUInt32LE(frame.byteLength, 0);
         frame.writeUInt32LE(C.SERVER_HELLO_MAGIC, 4);
-        frame.writeUInt32LE(this._decoder.maxFrameSize, 8);
+        frame.writeUInt32LE(this._enc.maxFrameSize, 8);
         frame.writeUInt8(version, 12);
         frame.writeUInt8(alpLength, 13);
         frame.write(alpName, 14, alpLength, 'utf8');

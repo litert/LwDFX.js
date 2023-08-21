@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 import * as $Net from 'node:net';
 import * as $Events from 'node:events';
 import * as D from './Decl';
-import { LwBFDecoder } from './Decoder';
 import { LwDFXError } from './Errors';
+import { LwDFXEncoder } from './Encoder';
 
 const CLOSE_FRAME = Buffer.from([0x00, 0x00, 0x00, 0x00]);
 
@@ -32,7 +32,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
     public readonly localPort: number;
 
-    protected readonly _decoder = new LwBFDecoder();
+    protected readonly _enc = new LwDFXEncoder();
 
     public alpName: string = '';
 
@@ -58,21 +58,12 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
         if (frameChunks instanceof Buffer) {
 
-            const header = Buffer.allocUnsafe(4);
-
-            header.writeUInt32LE(frameChunks.byteLength, 0);
-
-            this._socket.write(header);
+            this._socket.write(this._enc.encodeHeader(frameChunks.byteLength));
 
             return this._socket.write(frameChunks);
         }
 
-        const header = Buffer.allocUnsafe(4);
-
-        const frameSize = frameChunks.reduce((s, c) => s + c.byteLength, 0);
-        header.writeUInt32LE(frameSize, 0);
-
-        this._socket.write(header);
+        this._socket.write(this._enc.encodeHeader(frameChunks.reduce((s, c) => s + c.byteLength, 0)));
 
         let ret: boolean = true;
 
@@ -155,7 +146,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
             try {
 
-                const frames = this._decoder.decode(d);
+                const frames = this._enc.decode(d);
 
                 for (const f of frames) {
 
@@ -181,7 +172,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
             try {
 
-                const frames = this._decoder.decode(chunk.subarray(helloPacketSize));
+                const frames = this._enc.decode(chunk.subarray(helloPacketSize));
 
                 for (const f of frames) {
 

@@ -1,6 +1,6 @@
 {
   "name": "@litert/lwdfx",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A TypeScript implement of light-weight data frame exchange protocol.",
   "main": "lib/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "protocol",
     "frame"
   ],
-  "author": "Angus.Fenying <fenying@litert.org> (https://fenying.net)",
+  "author": "Angus.Fenying <i@fenying.net> (https://fenying.net)",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,32 @@
  */
 
 import { LwDFXError } from './Errors';
+import * as Constants from './Constant';
 
-export class LwBFDecoder {
+export class LwDFXEncoder {
 
     private _lenBufOffset = 0;
 
     private _frameRest = 0;
 
-    private readonly _lenBuf: Buffer = Buffer.allocUnsafe(4);
+    private readonly _headerBuf: Buffer = Buffer.allocUnsafe(8);
 
     private _buffer: Buffer[] = [];
 
     public maxFrameSize: number = 0;
+
+    public encodeHeader(len: number, buf: Buffer = Buffer.allocUnsafe(Constants.DATA_FRAME_HEADER_LEN)): Buffer {
+
+        if (len > this.maxFrameSize) {
+
+            throw new LwDFXError('encode_error', 'Too large frame');
+        }
+
+        buf.writeUInt32LE(Constants.DATA_FRAME_MAGIC, 0);
+        buf.writeUInt32LE(len, 4);
+
+        return buf;
+    }
 
     public decode(data: Buffer): Buffer[][] {
 
@@ -56,17 +70,22 @@ export class LwBFDecoder {
                 continue;
             }
 
-            const bytes2Read = Math.min(4 - this._lenBufOffset, data.byteLength);
+            const bytes2Read = Math.min(Constants.DATA_FRAME_HEADER_LEN - this._lenBufOffset, data.byteLength);
 
-            data.copy(this._lenBuf, this._lenBufOffset, 0, bytes2Read);
+            data.copy(this._headerBuf, this._lenBufOffset, 0, bytes2Read);
 
             this._lenBufOffset += bytes2Read;
 
             data = data.subarray(bytes2Read);
 
-            if (this._lenBufOffset === 4) {
+            if (this._lenBufOffset === Constants.DATA_FRAME_HEADER_LEN) {
 
-                this._frameRest = this._lenBuf.readUInt32LE(0);
+                if (this._headerBuf.readUInt32LE(0) !== Constants.DATA_FRAME_MAGIC) {
+
+                    throw new LwDFXError('decode_error', 'Invalid data frame');
+                }
+
+                this._frameRest = this._headerBuf.readUInt32LE(4);
 
                 if (this._frameRest === 0) {
 

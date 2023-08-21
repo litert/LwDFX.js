@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ import * as FS from 'node:fs';
     conn.on('frame', (frameChunks) => {
 
         console.log('frame', Buffer.concat(frameChunks).toString());
+    });
+
+    conn.on('error', (e) => {
+
+        console.error(e);
     });
 
     conn.on('close', () => {

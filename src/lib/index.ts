@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 export * from './Decl';
 export * from './ClientConnection';
 export * from './Server';
+export * from './Encoder';
 export * as Constants from './Constant';
 export * from './Errors';
 export * as Tcp from './Tcp';
