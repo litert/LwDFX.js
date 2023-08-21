@@ -36,8 +36,10 @@
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
     "@litert/eslint-plugin-rules": "^0.1.5",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^20.3.3",
     "husky": "^8.0.3",
+    "mocha": "^10.2.0",
     "typescript": "^5.1.6"
   },
   "engines": {

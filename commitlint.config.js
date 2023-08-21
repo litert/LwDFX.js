@@ -15,6 +15,7 @@ module.exports = {
             'lint',
             'docs',
             'deps',
+            'test',
             'project'
         ]],
         'scope-empty': [2, 'never'],
