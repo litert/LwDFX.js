@@ -1,12 +1,12 @@
 {
   "name": "@litert/lwdfx",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A TypeScript implement of light-weight data frame exchange protocol.",
   "main": "lib/index.js",
   "scripts": {
     "prepublishOnly": "npm run rebuild",
     "build": "tsc -v && tsc -p .",
-    "rebuild": "npm run clean && npm run lint && npm run build",
+    "rebuild": "npm run clean && npm run build && npm run lint",
     "build-watch": "tsc -v && tsc -w -p .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "mocha",
@@ -33,14 +33,14 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
   "devDependencies": {
-    "@commitlint/cli": "^17.6.6",
-    "@commitlint/config-conventional": "^17.6.6",
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
     "@litert/eslint-plugin-rules": "^0.1.5",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.3.3",
+    "@types/node": "^20.5.9",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=18.0.0"

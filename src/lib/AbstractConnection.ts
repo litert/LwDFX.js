@@ -48,6 +48,8 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
         super();
 
+        this._socket.setNoDelay(true);
+
         this.remoteAddress = _socket.remoteAddress!;
         this.remotePort = _socket.remotePort!;
         this.localAddress = _socket.localAddress!;
@@ -127,20 +129,11 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
             this._socket.destroy(new LwDFXError('timeout', 'Connection timeout'));
         });
 
-        this._socket.on('close', () => {
+        this._socket.on('close', () => this.emit('close'));
 
-            this.emit('close');
-        });
+        this._socket.on('error', (err) => this.emit('error', err));
 
-        this._socket.on('error', (err) => {
-
-            this.emit('error', err);
-        });
-
-        this._socket.on('end', () => {
-
-            this.emit('end');
-        });
+        this._socket.on('end', () => this.emit('end'));
 
         this._socket.on('data', (d) => {
 
