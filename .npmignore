@@ -10,3 +10,7 @@
 /temp/
 /package-lock.json
 /init-test-data.sh
+/.eslintignore
+/.husky/commit-msg
+/commitlint.config.js
+/docker/
