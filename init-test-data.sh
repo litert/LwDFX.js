@@ -5,6 +5,7 @@ export MY_CA_ROOT_DIR=$SCRIPT_ROOT/temp
 # Start generating the Root CA.
 
 rm -rf $MY_CA_ROOT_DIR
+rm -f $SCRIPT_ROOT/docker/nginx/*.pem
 mkdir -p $MY_CA_ROOT_DIR
 
 cd $MY_CA_ROOT_DIR
@@ -197,7 +198,7 @@ echo 'unique_subject = no' > $MY_CA_ROOT_DIR/index.txt.attr
 
 MY_CA_L2_DIR=$MY_CA_ROOT_DIR
 
-NEW_CERT_DOMAIN=lwdfx1.litert.org
+NEW_CERT_DOMAIN=lwdfx-tls-server
 NEW_SERVER_KEY_PATH=$MY_CA_L2_DIR/private/server-$NEW_CERT_DOMAIN.key.pem
 
 openssl ecparam -rand $MY_CA_L2_DIR/.rand -genkey -name prime256v1 -noout -out $NEW_SERVER_KEY_PATH
@@ -261,3 +262,76 @@ $(cat $NEW_SERVER_CERT_PATH)
 
 $(cat $MY_CA_L2_DIR/ca.pem)
 EOL
+
+cp $NEW_SERVER_FULLCHAIN_PATH $SCRIPT_ROOT/docker/nginx/
+cp $NEW_SERVER_KEY_PATH $SCRIPT_ROOT/docker/nginx/
+
+# Generate Nginx certification
+
+NEW_CERT_DOMAIN=lwdfx-nginx
+NEW_SERVER_KEY_PATH=$MY_CA_L2_DIR/private/server-$NEW_CERT_DOMAIN.key.pem
+
+openssl ecparam -rand $MY_CA_L2_DIR/.rand -genkey -name prime256v1 -noout -out $NEW_SERVER_KEY_PATH
+NEW_SERVER_CERT_REQ_PATH=$MY_CA_L2_DIR/csr/server-$NEW_CERT_DOMAIN.csr.cnf
+
+cat > $NEW_SERVER_CERT_REQ_PATH << EOL
+[ req ]
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+req_extensions      = req_ext
+x509_extensions     = v3_req
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md          = sha256
+prompt              = no
+
+[ req_distinguished_name ]
+# See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
+commonName                      = $NEW_CERT_DOMAIN
+
+[req_ext]
+subjectAltName = @alt_names
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+# IP.1 = 127.0.0.1
+DNS.1 = $NEW_CERT_DOMAIN
+EOL
+
+NEW_SERVER_CERT_CSR_PATH=$MY_CA_L2_DIR/csr/server-$NEW_CERT_DOMAIN.csr.pem
+
+openssl req \
+    -config $NEW_SERVER_CERT_REQ_PATH \
+    -new -sha256 \
+    -key $NEW_SERVER_KEY_PATH \
+    -out $NEW_SERVER_CERT_CSR_PATH
+
+openssl req \
+    -in $NEW_SERVER_CERT_CSR_PATH \
+    -noout \
+    -text
+
+NEW_SERVER_CERT_PATH=$MY_CA_L2_DIR/newcerts/server-$NEW_CERT_DOMAIN.cert.pem
+
+openssl ca \
+    -config $MY_CA_L2_DIR/ca.cnf \
+    -extensions server_cert \
+    -days 180 \
+    -notext \
+    -md sha256 \
+    -batch \
+    -in $NEW_SERVER_CERT_CSR_PATH \
+    -out $NEW_SERVER_CERT_PATH
+
+NEW_SERVER_FULLCHAIN_PATH=$MY_CA_L2_DIR/newcerts/server-$NEW_CERT_DOMAIN.fullchain.pem
+
+cat > $NEW_SERVER_FULLCHAIN_PATH << EOL
+$(cat $NEW_SERVER_CERT_PATH)
+
+$(cat $MY_CA_L2_DIR/ca.pem)
+EOL
+
+cp $NEW_SERVER_FULLCHAIN_PATH $SCRIPT_ROOT/docker/nginx/
+cp $NEW_SERVER_KEY_PATH $SCRIPT_ROOT/docker/nginx/

@@ -1,5 +1,11 @@
 # Changes
 
+## v1.1.0
+
+- feat(protocol): accepts socket factory function to produce sockets.
+- feat(encoder): accepts string as data to send.
+- feat(connector): added `IConnection.writable` property.
+
 ## v1.0.4
 
 - fix(gateway): make socket no delay.

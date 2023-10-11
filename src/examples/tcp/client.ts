@@ -18,7 +18,11 @@ import * as LwDFX from '../../lib';
 
 (async () => {
 
-    const conn = await LwDFX.Tcp.connect({ alpWhitelist: ['demo', 'b2'] });
+    const conn = await LwDFX.Tcp.connect({
+        alpWhitelist: ['demo', 'b2'],
+        port: parseInt(process.argv[3] ?? '8698'),
+        hostname: process.argv[2] ?? '127.0.0.1',
+    });
 
     console.log(`Connection[${conn.localAddress}:${conn.localPort}->${conn.remoteAddress}:${conn.remotePort}] connected using ${conn.alpName}`);
     const data = new Array(3).fill(Buffer.from(JSON.stringify({ action: 'GetMyName' })));

@@ -57,12 +57,12 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
         callback: D.IErrorCallback<unknown>,
     ): void {
 
-        this._socket.on('data', (chunk) => {
+        this._socket!.on('data', (chunk) => {
 
             if (chunk.byteLength < 10) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -71,14 +71,14 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
             if (chunk.byteLength < packetSize) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet header size'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
             if (chunk.readUint32LE(4) !== C.CLIENT_HELLO_MAGIC) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet header magic'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -88,7 +88,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
                 callback(new LwDFXError('invalid_version', 'No available versions offered'));
                 this._sendServerHelloRejectedVersion();
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -96,7 +96,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
                 callback(new LwDFXError('invalid_version', 'No compatible version offered'));
                 this._sendServerHelloRejectedVersion();
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -112,7 +112,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
                     callback(new LwDFXError('invalid_alp', 'No ALP name offered by client'));
                     this._sendServerHelloRejectedAlp();
-                    this._socket.destroy();
+                    this._socket?.destroy();
                     return;
                 }
 
@@ -175,7 +175,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
     private _sendServerHelloRejectedVersion(): void {
 
-        if (!this._socket.writable) {
+        if (!this._socket?.writable) {
 
             return;
         }
@@ -186,7 +186,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
     private _sendServerHelloRejectedAlp(): void {
 
-        if (!this._socket.writable) {
+        if (!this._socket?.writable) {
 
             return;
         }
@@ -197,7 +197,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
 
     private _sendServerHelloOk(version: number, alpName: string): void {
 
-        if (!this._socket.writable) {
+        if (!this._socket?.writable) {
 
             return;
         }

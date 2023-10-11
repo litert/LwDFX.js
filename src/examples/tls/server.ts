@@ -23,9 +23,11 @@ const server = LwDFX.createServer({
 });
 
 const gateway = LwDFX.Tls.createGateway(server, {
+    hostname: process.argv[2] ?? '127.0.0.1',
+    port: parseInt(process.argv[3] ?? '9330'),
     tlsOptions: {
-        cert: FS.readFileSync(`${__dirname}/../../temp/newcerts/server-lwdfx1.litert.org.fullchain.pem`, 'utf-8'),
-        key: FS.readFileSync(`${__dirname}/../../temp/private/server-lwdfx1.litert.org.key.pem`, 'utf-8'),
+        cert: FS.readFileSync(`${__dirname}/../../temp/newcerts/server-lwdfx-tls-server.fullchain.pem`, 'utf-8'),
+        key: FS.readFileSync(`${__dirname}/../../temp/private/server-lwdfx-tls-server.key.pem`, 'utf-8'),
     }
 });
 
@@ -50,9 +52,13 @@ server.on('connection', (conn) => {
 
     conn.on('frame', (frameChunks) => {
 
-        const data = Buffer.concat(frameChunks);
-        console.log('frame', data.toString());
-        conn.write(data);
+        console.log(`[${new Date().toISOString()}] Recv frame:  ${Buffer.concat(frameChunks).toString()}`);
+        try {
+            conn.write(frameChunks);
+        }
+        catch (e) {
+            console.error(e);
+        }
     });
 
     conn.on('error', (err) => {
@@ -60,10 +66,27 @@ server.on('connection', (conn) => {
         console.error('Connection error', err);
     });
 
+    const byeTimeout = 10000 * Math.random();
+
+    const timer = setTimeout(() => {
+
+        try {
+
+            conn.write(Buffer.from('bye~'));
+        }
+        catch (e) {
+
+            console.error(e);
+        }
+        conn.end();
+    }, byeTimeout);
+
+    console.log(`[${new Date().toISOString()}] Close connection in ${byeTimeout}ms`);
+
     conn.on('close', () => {
 
-        // clearInterval(timer);
-        console.log(`Connection[${conn.remoteAddress}:${conn.remotePort}->${conn.localAddress}:${conn.localPort}] closed`);
+        clearTimeout(timer);
+        console.log(`Connection closed`);
     });
 });
 

@@ -21,9 +21,11 @@ import * as FS from 'node:fs';
 
     const conn = await LwDFX.Tls.connect({
         alpWhitelist: ['demo', 'b2'],
+        hostname: process.argv[2] ?? '127.0.0.1',
+        port: parseInt(process.argv[3] ?? '9330'),
         tlsOptions: {
             ca: [FS.readFileSync(`${__dirname}/../../temp/ca.pem`, 'utf-8')],
-            servername: 'lwdfx1.litert.org',
+            servername: process.argv[4] ?? 'lwdfx-tls-server',
         }
     });
 

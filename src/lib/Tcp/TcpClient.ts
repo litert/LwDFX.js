@@ -19,6 +19,7 @@ import * as Constants from './../Constant';
 import * as D from './../Decl';
 import * as C from './TcpCommon';
 import { ClientConnection } from '../ClientConnection';
+import { LwDFXError } from '../Errors';
 
 export interface ITcpClientOptions extends D.IConnectOptions {
 
@@ -45,40 +46,26 @@ export interface ITcpClientOptions extends D.IConnectOptions {
      *
      * > If the socket is specified, `hostname` and `port` are ignored.
      *
+     * > Only available at the first time connecting.
+     *
      * @default null
      */
-    socket?: $Net.Socket | null;
+    socket?: $Net.Socket | D.ISocketFactory | null;
 }
 
-/**
- * Connect to a LwDFX server.
- *
- * @param opts      Connection options.
- * @param callback  Callback function.
- */
-export function connect(opts: ITcpClientOptions): Promise<D.IConnection> {
+function netConnect(opts: ITcpClientOptions): Promise<$Net.Socket> {
 
-    return new Promise<D.IConnection>((resolve, reject) => {
+    return new Promise<$Net.Socket>((resolve, reject) => {
 
-        if (opts.socket) {
+        if (typeof opts.socket === 'function') {
 
-            const connection = new ClientConnection(opts.socket, opts.timeout ?? Constants.DEFAULT_TIMEOUT);
+            opts.socket().then(resolve, reject);
+            return;
+        }
 
-            connection.setup(
-                opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
-                opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
-                (err) => {
+        if (!(opts.socket?.closed ?? true)) {
 
-                    if (err) {
-
-                        reject(err);
-                        return;
-                    }
-
-                    resolve(connection);
-                }
-            );
-
+            resolve(opts.socket!);
             return;
         }
 
@@ -86,34 +73,54 @@ export function connect(opts: ITcpClientOptions): Promise<D.IConnection> {
             'host': opts.hostname ?? C.DEFAULT_HOSTNAME,
             'port': opts.port ?? C.DEFAULT_PORT,
             'timeout': opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
-        });
-
-        socket.on('connect', () => {
+        }, () => {
 
             socket.removeAllListeners('error');
 
-            const connection = new ClientConnection(socket, opts.timeout ?? Constants.DEFAULT_TIMEOUT);
+            socket.removeAllListeners('connect');
 
-            connection.setup(
-                opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
-                opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
-                (err) => {
-
-                    if (err) {
-
-                        reject(err);
-                        return;
-                    }
-
-                    resolve(connection);
-                }
-            );
+            resolve(socket);
         });
 
         socket.on('error', (e) => {
 
-            socket.destroy();
-            reject(e);
+            socket.removeAllListeners('error');
+
+            socket.removeAllListeners('connect');
+
+            reject(new LwDFXError('connect_error', 'Failed to connect to remote server', e));
         });
+    });
+}
+
+/**
+ * Connect to a LwDFX server through TCP protocol.
+ *
+ * @param opts      Connection options.
+ * @param callback  Callback function.
+ */
+export async function connect(opts: ITcpClientOptions): Promise<D.IConnection> {
+
+    const socket = await netConnect(opts);
+
+    return new Promise<D.IConnection>((resolve, reject) => {
+
+        const conn = new ClientConnection(
+            socket,
+            opts.timeout ?? Constants.DEFAULT_TIMEOUT,
+        );
+
+        conn.setup(
+            opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
+            opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
+            (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(conn);
+                }
+            }
+        );
     });
 }

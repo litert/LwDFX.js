@@ -201,6 +201,7 @@ class TlsGateway4LwDFX extends AbstractGateway implements ITlsGateway {
         return new Promise((resolve, reject) => {
 
             const tlsListener = $Tls.createServer({
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 ALPNProtocols: [C.DEFAULT_ALPN_PROTOCOL],
                 ...this._tlsOptions,
             });

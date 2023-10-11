@@ -28,12 +28,12 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
 
         this._sendClientHello(alpNames);
 
-        this._socket.on('data', (chunk) => {
+        this._socket!.on('data', (chunk) => {
 
             if (chunk.byteLength < 10) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet'));
-                this._socket.destroy();
+                this._socket!.destroy();
                 return;
             }
 
@@ -42,14 +42,14 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
             if (chunk.byteLength < packetSize) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet header size'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
             if (chunk.readUint32LE(4) !== C.SERVER_HELLO_MAGIC) {
 
                 callback(new LwDFXError('invalid_packet', 'Invalid handshake packet header magic'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -58,7 +58,7 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
             if (chunk[12] !== C.VERSION_1) {
 
                 callback(new LwDFXError('invalid_version', 'No compatible version offered'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -67,7 +67,7 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
             if (!this.alpName || (alpNames.length && !alpNames.includes(this.alpName))) {
 
                 callback(new LwDFXError('invalid_alp', 'No compatible ALP name offered'));
-                this._socket.destroy();
+                this._socket?.destroy();
                 return;
             }
 
@@ -79,7 +79,7 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
 
     private _sendClientHello(alpNames: readonly string[]): void {
 
-        if (!this._socket.writable) {
+        if (!this._socket?.writable) {
 
             return;
         }

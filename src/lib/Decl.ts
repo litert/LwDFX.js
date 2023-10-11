@@ -36,6 +36,13 @@ export interface IConnection {
     readonly remoteAddress: string;
 
     /**
+     * The family of the connection.
+     *
+     * @see https://nodejs.org/api/net.html#socketremotefamily
+     */
+    readonly family: string;
+
+    /**
      * The remote port of the connection.
      */
     readonly remotePort: number;
@@ -54,6 +61,11 @@ export interface IConnection {
      * Tell whether the connection is connected.
      */
     readonly connected: boolean;
+
+    /**
+     * Tell whether the connection is writable.
+     */
+    readonly writable: boolean;
 
     /**
      * Register a callback for the `frame` event.
@@ -101,7 +113,7 @@ export interface IConnection {
      *
      * @param frameChunks     The chunks of a frame to write.
      */
-    write(frameChunks: Buffer | Buffer[]): boolean;
+    write(frameChunks: Buffer | string | Array<Buffer | string>): boolean;
 
     /**
      * Close the connection.
@@ -259,3 +271,5 @@ export interface IServer {
      */
     registerConnection(conn: $Net.Socket, callback: IErrorCallback<IConnection>): void;
 }
+
+export type ISocketFactory = () => Promise<$Net.Socket>;

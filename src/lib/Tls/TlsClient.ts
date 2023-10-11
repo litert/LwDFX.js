@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import type * as $Net from 'node:net';
 import * as $Tls from 'node:tls';
 import * as Constants from './../Constant';
 import * as D from './../Decl';
 import * as C from './TlsCommon';
 import { ClientConnection } from '../ClientConnection';
+import { LwDFXError } from '../Errors';
 
 export interface ITlsClientOptions extends D.IConnectOptions {
 
@@ -47,44 +49,32 @@ export interface ITlsClientOptions extends D.IConnectOptions {
      *
      * @default null
      */
-    socket?: $Tls.TLSSocket | null;
+    socket?: $Tls.TLSSocket | D.ISocketFactory | null;
 
+    /**
+     * The TLS options for new connections.
+     */
     tlsOptions?: Omit<$Tls.ConnectionOptions, 'host' | 'port' | 'ALPNProtocols' | 'socket' | 'timeout'>;
 }
 
-/**
- * Connect to a LwDFX server.
- *
- * @param opts      Connection options.
- * @param callback  Callback function.
- */
-export function connect(opts: ITlsClientOptions): Promise<D.IConnection> {
+function netConnect(opts: ITlsClientOptions): Promise<$Net.Socket> {
 
-    return new Promise<D.IConnection>((resolve, reject) => {
+    return new Promise<$Net.Socket>((resolve, reject) => {
 
-        if (opts.socket) {
+        if (typeof opts.socket === 'function') {
 
-            const connection = new ClientConnection(opts.socket, opts.timeout ?? Constants.DEFAULT_TIMEOUT);
+            opts.socket().then(resolve, reject);
+            return;
+        }
 
-            connection.setup(
-                opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
-                opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
-                (err) => {
+        if (!(opts.socket?.closed ?? true)) {
 
-                    if (err) {
-
-                        reject(err);
-                        return;
-                    }
-
-                    resolve(connection);
-                }
-            );
-
+            resolve(opts.socket!);
             return;
         }
 
         const socket = $Tls.connect(opts.port ?? C.DEFAULT_PORT, opts.hostname ?? C.DEFAULT_HOSTNAME, {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'ALPNProtocols': [C.DEFAULT_ALPN_PROTOCOL],
             'timeout': opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
             ...(opts.tlsOptions ?? {})
@@ -92,28 +82,50 @@ export function connect(opts: ITlsClientOptions): Promise<D.IConnection> {
 
             socket.removeAllListeners('error');
 
-            const connection = new ClientConnection(socket, opts.timeout ?? Constants.DEFAULT_TIMEOUT);
+            socket.removeAllListeners('connect');
 
-            connection.setup(
-                opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
-                opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
-                (err) => {
-
-                    if (err) {
-
-                        reject(err);
-                        return;
-                    }
-
-                    resolve(connection);
-                }
-            );
+            resolve(socket);
         });
 
         socket.on('error', (e) => {
 
-            socket.destroy();
-            reject(e);
+            socket.removeAllListeners('error');
+
+            socket.removeAllListeners('connect');
+
+            reject(new LwDFXError('connect_error', 'Failed to connect to remote server', e));
         });
+    });
+}
+
+/**
+ * Connect to a LwDFX server through TLS protocol.
+ *
+ * @param opts      Connection options.
+ * @param callback  Callback function.
+ */
+export async function connect(opts: ITlsClientOptions): Promise<D.IConnection> {
+
+    const socket = await netConnect(opts);
+
+    return new Promise<D.IConnection>((resolve, reject) => {
+
+        const conn = new ClientConnection(
+            socket,
+            opts.timeout ?? Constants.DEFAULT_TIMEOUT,
+        );
+
+        conn.setup(
+            opts.alpWhitelist ?? Constants.DEFAULT_ALP_WHITELIST,
+            opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
+            (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(conn);
+                }
+            }
+        );
     });
 }

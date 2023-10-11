@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as $Net from 'node:net';
+import type * as $Net from 'node:net';
 import * as $Events from 'node:events';
 import * as D from './Decl';
 import { LwDFXError } from './Errors';
@@ -22,41 +22,86 @@ import { LwDFXEncoder } from './Encoder';
 
 const CLOSE_FRAME = Buffer.from([0x00, 0x00, 0x00, 0x00]);
 
+function once<T extends (...args: any[]) => unknown>(callback: T): T {
+
+    let cb: T | null = callback;
+    let result!: unknown;
+
+    return function(...args: any[]): unknown {
+
+        if (cb) {
+
+            result = cb(...args);
+
+            cb = null;
+        }
+
+        return result;
+
+    } as T;
+}
+
 export abstract class AbstractConnection extends $Events.EventEmitter implements D.IConnection {
-
-    public readonly remoteAddress: string;
-
-    public readonly remotePort: number;
-
-    public readonly localAddress: string;
-
-    public readonly localPort: number;
 
     protected readonly _enc = new LwDFXEncoder();
 
     public alpName: string = '';
 
-    public get connected(): boolean {
-
-        return !this._socket.closed;
-    }
+    protected _socket: $Net.Socket | null;
 
     public constructor(
-        protected _socket: $Net.Socket,
+        socket: $Net.Socket | null,
         public timeout: number
     ) {
 
         super();
 
-        this._socket.setNoDelay(true);
+        this._socket = socket;
 
-        this.remoteAddress = _socket.remoteAddress!;
-        this.remotePort = _socket.remotePort!;
-        this.localAddress = _socket.localAddress!;
-        this.localPort = _socket.localPort!;
+        this._socket?.setNoDelay(true);
     }
 
-    public write(frameChunks: Buffer | Buffer[]): boolean {
+    public get connected(): boolean {
+
+        return this._socket?.closed === false;
+    }
+
+    public get writable(): boolean {
+
+        return this._socket?.writable === true;
+    }
+
+    public get family(): string {
+
+        return this._socket?.localFamily ?? '';
+    }
+
+    public get remoteAddress(): string {
+
+        return this._socket?.remoteAddress ?? '';
+    }
+
+    public get localAddress(): string {
+
+        return this._socket?.localAddress ?? '';
+    }
+
+    public get remotePort(): number {
+
+        return this._socket?.remotePort ?? 0;
+    }
+
+    public get localPort(): number {
+
+        return this._socket?.localPort ?? 0;
+    }
+
+    public write(frameChunks: Buffer | string | Array<Buffer | string>): boolean {
+
+        if (!this.connected || !this._socket?.writable) {
+
+            throw new LwDFXError('conn_lost', 'Connection lost');
+        }
 
         if (frameChunks instanceof Buffer) {
 
@@ -65,7 +110,14 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
             return this._socket.write(frameChunks);
         }
 
-        this._socket.write(this._enc.encodeHeader(frameChunks.reduce((s, c) => s + c.byteLength, 0)));
+        if (!Array.isArray(frameChunks)) {
+
+            this._socket.write(this._enc.encodeHeader(Buffer.byteLength(frameChunks)));
+
+            return this._socket.write(frameChunks);
+        }
+
+        this._socket.write(this._enc.encodeHeader(frameChunks.reduce((s, c) => s + Buffer.byteLength(c), 0)));
 
         let ret: boolean = true;
 
@@ -79,7 +131,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
     public end(): boolean {
 
-        if (this._socket.writable) {
+        if (this._socket?.writable) {
 
             try {
 
@@ -98,60 +150,46 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
     public destroy(): void {
 
-        this._socket.destroy();
-    }
-
-    protected _once<T extends (...args: any[]) => unknown>(callback: T): T {
-
-        let cb: T | null = callback;
-        let result!: unknown;
-
-        return function(...args: any[]): unknown {
-
-            if (cb) {
-
-                result = cb(...args);
-
-                cb = null;
-            }
-
-            return result;
-
-        } as T;
+        this._socket?.destroy();
     }
 
     protected _setupSocket(): void {
 
-        this._socket.removeAllListeners();
+        if (!this.connected) {
 
-        this._socket.setTimeout(this.timeout, () => {
+            throw new LwDFXError('conn_lost', 'Connection lost');
+        }
 
-            this._socket.destroy(new LwDFXError('timeout', 'Connection timeout'));
-        });
+        this._socket!
+            .removeAllListeners()
+            .setTimeout(this.timeout, () => {
 
-        this._socket.on('close', () => this.emit('close'));
+                this._socket?.destroy(new LwDFXError('timeout', 'Connection timeout'));
+            })
+            .on('close', () => {
 
-        this._socket.on('error', (err) => this.emit('error', err));
+                this._socket = null;
+                this.emit('close');
+            })
+            .on('error', (err) => this.emit('error', err))
+            .on('end', () => this.emit('end'))
+            .on('data', (d) => {
 
-        this._socket.on('end', () => this.emit('end'));
+                try {
 
-        this._socket.on('data', (d) => {
+                    const frames = this._enc.decode(d);
 
-            try {
+                    for (const chunks of frames) {
 
-                const frames = this._enc.decode(d);
-
-                for (const f of frames) {
-
-                    this.emit('frame', f);
+                        this.emit('frame', chunks);
+                    }
                 }
-            }
-            catch (e) {
+                catch (e) {
 
-                this.emit('error', e);
-                this.destroy();
-            }
-        });
+                    this.emit('error', e);
+                    this.destroy();
+                }
+            });
     }
 
     protected abstract _handshake(
@@ -186,41 +224,40 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
         callback: D.IErrorCallback<D.IConnection>,
     ): void {
 
-        const sendResult = this._once(callback);
+        callback = once(callback);
 
         const timer = setTimeout(() => {
 
-            sendResult(new LwDFXError('timeout', 'Handshake timeout'));
+            callback(new LwDFXError('timeout', 'Handshake timeout'));
 
         }, handshakeTimeout);
 
-        this._socket.setTimeout(handshakeTimeout, () => {
-            this._socket.destroy(new LwDFXError('timeout', 'Handshake timeout'));
+        this._socket!.setTimeout(handshakeTimeout, () => {
+
+            this._socket!.destroy(new LwDFXError('timeout', 'Handshake timeout'));
         });
 
-        this._socket.on('close', () => {
+        this._socket!.on('close', () => {
 
-            sendResult(new LwDFXError('conn_lost', 'Connection closed'));
+            callback(new LwDFXError('conn_lost', 'Connection closed'));
 
             clearTimeout(timer);
 
-            this._socket.removeAllListeners();
+            this._socket?.removeAllListeners();
+            this._socket = null;
         });
 
-        this._socket.on('error', (err) => {
+        this._socket!.on('error', (err) => {
 
-            sendResult(err);
-
-            clearTimeout(timer);
-
-            this._socket.removeAllListeners();
+            callback(err);
+            this.destroy();
         });
 
         this._handshake(alpWhitelist, (err) => {
 
             if (err) {
 
-                sendResult(err);
+                callback(err);
                 return;
             }
 
@@ -228,7 +265,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
             this._setupSocket();
 
-            sendResult(null, this);
+            callback(null, this);
         });
     }
 }

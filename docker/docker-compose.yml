@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+  tcp-server:
+    container_name: lwdfx-tcp-server
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    working_dir: /data
+    command: ['node', 'examples/tcp/server.js', '0.0.0.0', '8698']
+  tls-server:
+    container_name: lwdfx-tls-server
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    working_dir: /data
+    command: ['node', 'examples/tls/server.js', '0.0.0.0', '9330']
+  tls-client-to-server:
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    depends_on:
+      - tls-server
+    working_dir: /data
+    command: ['node', 'examples/tls/reconnect.js', 'lwdfx-tls-server', '9330', 'lwdfx-tls-server']
+  tls-client-to-nginx-tls:
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    depends_on:
+      - nginx
+    working_dir: /data
+    command: ['node', 'examples/tls/reconnect.js', 'lwdfx-nginx', '19330', 'lwdfx-nginx']
+  tls-client-to-nginx-tunnel:
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    depends_on:
+      - nginx
+    working_dir: /data
+    command: ['node', 'examples/tls/reconnect.js', 'lwdfx-nginx', '29330', 'lwdfx-tls-server']
+  tcp-client-to-server:
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    depends_on:
+      - tcp-server
+    working_dir: /data
+    command: ['node', 'examples/tcp/reconnect.js', 'lwdfx-tcp-server', '8698']
+  tcp-client-to-nginx:
+    image: node:18-alpine
+    volumes:
+      - ..:/data
+    depends_on:
+      - nginx
+    working_dir: /data
+    command: ['node', 'examples/tcp/reconnect.js', 'lwdfx-nginx', '18698']
+  nginx:
+    container_name: lwdfx-nginx
+    build: ./nginx
+    depends_on:
+      - tcp-server
+      - tls-server

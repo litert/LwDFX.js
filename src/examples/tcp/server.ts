@@ -21,7 +21,10 @@ const server = LwDFX.createServer({
     maxFrameSize: 1024,
 });
 
-const tcpGateway = LwDFX.Tcp.createGateway(server);
+const tcpGateway = LwDFX.Tcp.createGateway(server, {
+    port: parseInt(process.argv[3] ?? '8698'),
+    hostname: process.argv[2] ?? '0.0.0.0',
+});
 
 tcpGateway.on('close', () => {
 
@@ -42,11 +45,24 @@ server.on('connection', (conn) => {
 
     console.log(`Connection[${conn.remoteAddress}:${conn.remotePort}->${conn.localAddress}:${conn.localPort}] connected using ${conn.alpName}`);
 
+    const msgTimer = setInterval(() => {
+
+        try {
+            conn.write('Hello');
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }, Math.ceil(1000 * Math.random()) + 10);
     conn.on('frame', (frameChunks) => {
 
-        const data = Buffer.concat(frameChunks);
-        console.log('frame', data.toString());
-        conn.write(data);
+        console.log(`[${new Date().toISOString()}] Recv frame:  ${Buffer.concat(frameChunks).toString()}`);
+        try {
+            conn.write(frameChunks);
+        }
+        catch (e) {
+            console.error(e);
+        }
     });
 
     conn.on('error', (err) => {
@@ -54,10 +70,28 @@ server.on('connection', (conn) => {
         console.error('Connection error', err);
     });
 
+    const byeTimeout = 10000 * Math.random();
+
+    const timer = setTimeout(() => {
+
+        try {
+
+            conn.write(Buffer.from('bye~'));
+        }
+        catch (e) {
+
+            console.error(e);
+        }
+        conn.end();
+    }, byeTimeout);
+
+    console.log(`[${new Date().toISOString()}] Close connection in ${byeTimeout}ms`);
+
     conn.on('close', () => {
 
-        // clearInterval(timer);
-        console.log(`Connection[${conn.remoteAddress}:${conn.remotePort}->${conn.localAddress}:${conn.localPort}] closed`);
+        clearTimeout(timer);
+        setTimeout(() => { clearInterval(msgTimer); }, 1000);
+        console.log(`Connection closed`);
     });
 });
 
