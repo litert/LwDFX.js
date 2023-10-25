@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-export * from './Decl';
-export * from './ClientConnection';
-export * from './Server';
-export * from './Encoder';
-export * as Constants from './Constant';
-export * from './Errors';
-export * as Tcp from './Tcp';
-export * as Tls from './Tls';
-export * as UnixSocket from './UnixSocket';
+/**
+ * The default backlog of LwDFXv1 over raw TCP.
+ *
+ * @type uint32
+ */
+export const DEFAULT_BACKLOG: number = 1023;

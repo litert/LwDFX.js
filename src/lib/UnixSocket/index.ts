@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-export * from './Decl';
-export * from './ClientConnection';
-export * from './Server';
-export * from './Encoder';
-export * as Constants from './Constant';
-export * from './Errors';
-export * as Tcp from './Tcp';
-export * as Tls from './Tls';
-export * as UnixSocket from './UnixSocket';
+export * from './UnixSocketGateway';
+export * from './UnixSocketClient';
+export * from './UnixSocketCommon';
