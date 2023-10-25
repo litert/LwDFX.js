@@ -91,7 +91,6 @@ class LwDFXServer extends $Events.EventEmitter implements D.IServer {
 
             if (err) {
 
-                console.error(err);
                 this.emit('error', err);
                 return;
             }

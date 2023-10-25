@@ -50,7 +50,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
     protected _socket: $Net.Socket | null;
 
     public constructor(
-        socket: $Net.Socket | null,
+        socket: $Net.Socket,
         public timeout: number
     ) {
 
@@ -58,7 +58,17 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
         this._socket = socket;
 
-        this._socket?.setNoDelay(true);
+        socket.setNoDelay(true);
+    }
+
+    public get finished(): boolean {
+
+        return this._socket?.writableFinished ?? true;
+    }
+
+    public get ended(): boolean {
+
+        return this._socket?.readableEnded ?? true;
     }
 
     public get connected(): boolean {
@@ -173,6 +183,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
             })
             .on('error', (err) => this.emit('error', err))
             .on('end', () => this.emit('end'))
+            .on('finish', () => this.emit('finish'))
             .on('data', (d) => {
 
                 try {

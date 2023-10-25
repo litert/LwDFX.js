@@ -68,6 +68,16 @@ export interface IConnection {
     readonly writable: boolean;
 
     /**
+     * Tell whether the connection is finished writing, and no more data could be written in.
+     */
+    readonly finished: boolean;
+
+    /**
+     * Tell whether the connection is ended reading, and no more data could be read from.
+     */
+    readonly ended: boolean;
+
+    /**
      * Register a callback for the `frame` event.
      *
      * @param event         The event name.
@@ -84,12 +94,12 @@ export interface IConnection {
     on(event: 'close', callback: (e?: unknown) => void): this;
 
     /**
-     * Register a callback for the `end` event.
+     * Register a callback for the `end` or `finish` event.
      *
      * @param event     The event name.
      * @param callback  The callback function.
      */
-    on(event: 'end', callback: () => void): this;
+    on(event: 'end' | 'finish', callback: () => void): this;
 
     /**
      * Register a callback for the `error` event.
@@ -106,7 +116,7 @@ export interface IConnection {
      *
      * @param event     The event name. When omitted, all listeners for all events will be removed.
      */
-    removeAllListeners(event?: 'error' | 'end' | 'close' | 'frame'): this;
+    removeAllListeners(event?: 'error' | 'end' | 'close' | 'finish' | 'frame'): this;
 
     /**
      * Write a frame to the connection.
