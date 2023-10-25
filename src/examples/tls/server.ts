@@ -20,6 +20,7 @@ import * as FS from 'node:fs';
 const server = LwDFX.createServer({
     alpWhitelist: ['b1', 'b2'],
     maxFrameSize: 1024,
+    timeout: 500,
 });
 
 const gateway = LwDFX.Tls.createGateway(server, {

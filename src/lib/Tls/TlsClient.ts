@@ -52,6 +52,13 @@ export interface ITlsClientOptions extends D.IConnectOptions {
     socket?: $Tls.TLSSocket | D.ISocketFactory | null;
 
     /**
+     * The timeout for connecting to the server, in milliseconds.
+     *
+     * @default 30000
+     */
+    connectTimeout?: number;
+
+    /**
      * The TLS options for new connections.
      */
     tlsOptions?: Omit<$Tls.ConnectionOptions, 'host' | 'port' | 'ALPNProtocols' | 'socket' | 'timeout'>;
@@ -76,7 +83,6 @@ function netConnect(opts: ITlsClientOptions): Promise<$Net.Socket> {
         const socket = $Tls.connect(opts.port ?? C.DEFAULT_PORT, opts.hostname ?? C.DEFAULT_HOSTNAME, {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             'ALPNProtocols': [C.DEFAULT_ALPN_PROTOCOL],
-            'timeout': opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
             ...(opts.tlsOptions ?? {})
         }, () => {
 
@@ -86,6 +92,16 @@ function netConnect(opts: ITlsClientOptions): Promise<$Net.Socket> {
 
             resolve(socket);
         });
+
+        const connectTimeout = opts.connectTimeout ?? C.DEFAULT_CONNECT_TIMEOUT;
+
+        if (connectTimeout) {
+
+            socket.setTimeout(connectTimeout, () => {
+
+                socket.destroy(new LwDFXError('connect_timeout', 'Timeout for connecting to remote server'));
+            });
+        }
 
         socket.on('error', (e) => {
 

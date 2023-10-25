@@ -78,6 +78,11 @@ export interface IConnection {
     readonly ended: boolean;
 
     /**
+     * The timeout in milliseconds for the connection.
+     */
+    timeout: number;
+
+    /**
      * Register a callback for the `frame` event.
      *
      * @param event         The event name.
@@ -99,7 +104,7 @@ export interface IConnection {
      * @param event     The event name.
      * @param callback  The callback function.
      */
-    on(event: 'end' | 'finish', callback: () => void): this;
+    on(event: 'end' | 'finish' | 'timeout', callback: () => void): this;
 
     /**
      * Register a callback for the `error` event.
@@ -159,7 +164,9 @@ export interface IConnectOptions {
     alpWhitelist?: string[];
 
     /**
-     * The timeout in milliseconds for the connections.
+     * The timeout in milliseconds for the connections after connection is established.
+     *
+     * > Timeout means the connection is idle for a long time, and the connection will be closed.
      *
      * > Set to `0` to disable the timeout.
      *
@@ -169,7 +176,9 @@ export interface IConnectOptions {
     timeout?: number;
 
     /**
-     * The timeout in milliseconds for the handshake process.
+     * The timeout in milliseconds during the handshake process.
+     *
+     * > Timeout means the connection is idle for a long time, and the connection will be closed.
      *
      * > Set to `0` to disable the timeout.
      *

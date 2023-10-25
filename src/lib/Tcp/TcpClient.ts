@@ -51,6 +51,13 @@ export interface ITcpClientOptions extends D.IConnectOptions {
      * @default null
      */
     socket?: $Net.Socket | D.ISocketFactory | null;
+
+    /**
+     * The timeout for connecting to the server, in milliseconds.
+     *
+     * @default 30000
+     */
+    connectTimeout?: number;
 }
 
 function netConnect(opts: ITcpClientOptions): Promise<$Net.Socket> {
@@ -72,7 +79,6 @@ function netConnect(opts: ITcpClientOptions): Promise<$Net.Socket> {
         const socket = $Net.connect({
             'host': opts.hostname ?? C.DEFAULT_HOSTNAME,
             'port': opts.port ?? C.DEFAULT_PORT,
-            'timeout': opts.handshakeTimeout ?? Constants.DEFAULT_HANDSHAKE_TIMEOUT,
         }, () => {
 
             socket.removeAllListeners('error');
@@ -81,6 +87,16 @@ function netConnect(opts: ITcpClientOptions): Promise<$Net.Socket> {
 
             resolve(socket);
         });
+
+        const connectTimeout = opts.connectTimeout ?? C.DEFAULT_CONNECT_TIMEOUT;
+
+        if (connectTimeout) {
+
+            socket.setTimeout(connectTimeout, () => {
+
+                socket.destroy(new LwDFXError('connect_timeout', 'Timeout for connecting to remote server'));
+            });
+        }
 
         socket.on('error', (e) => {
 

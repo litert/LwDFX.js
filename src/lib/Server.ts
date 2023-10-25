@@ -45,12 +45,27 @@ class LwDFXServer extends $Events.EventEmitter implements D.IServer {
     public constructor(
         public alpWhitelist: string[],
         public maxConnections: number,
-        public timeout: number,
+        private _timeout: number,
         public handshakeTimeout: number,
         public maxFrameSize: number,
     ) {
 
         super();
+    }
+
+    public get timeout(): number {
+
+        return this._timeout;
+    }
+
+    public set timeout(v: number) {
+
+        if (!Number.isSafeInteger(v) || v < 0) {
+
+            throw new LwDFXError('invalid_timeout', 'Invalid timeout value.');
+        }
+
+        this._timeout = v;
     }
 
     public get connections(): number {
@@ -85,7 +100,7 @@ class LwDFXServer extends $Events.EventEmitter implements D.IServer {
             return;
         }
 
-        const conn = new ServerConnection(this._generateNextId(), socket, this.timeout, this.maxFrameSize);
+        const conn = new ServerConnection(this._generateNextId(), socket, this._timeout, this.maxFrameSize);
 
         conn.setup(this.alpWhitelist, this.handshakeTimeout, (err) => {
 

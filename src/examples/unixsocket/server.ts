@@ -19,6 +19,7 @@ import * as LwDFX from '../../lib';
 const server = LwDFX.createServer({
     alpWhitelist: ['b1', 'b2'],
     maxFrameSize: 1024,
+    timeout: 500,
 });
 
 const socketGateway = LwDFX.UnixSocket.createGateway(server, {

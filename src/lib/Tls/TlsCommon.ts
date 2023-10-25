@@ -39,3 +39,10 @@ export const DEFAULT_BACKLOG: number = 1023;
  * The default TLS ALPN protocol of LwDFXv1.
  */
 export const DEFAULT_ALPN_PROTOCOL: string = 'lwdfx1';
+
+/**
+ * The default timeout for connecting to the server, in milliseconds.
+ *
+ * @type uint32
+ */
+export const DEFAULT_CONNECT_TIMEOUT: number = 30_000;

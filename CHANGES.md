@@ -5,6 +5,7 @@
 - feat(protocol): added unix socket supports.
 - feat(protocol): accepts socket factory function to produce sockets.
 - feat(connection): added ended/finished properties and finished event.
+- feat(connection): added timeout property and timeout event.
 - feat(encoder): accepts string as data to send.
 - feat(connector): added `IConnection.writable` property.
 

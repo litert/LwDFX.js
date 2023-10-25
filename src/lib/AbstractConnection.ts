@@ -51,7 +51,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
     public constructor(
         socket: $Net.Socket,
-        public timeout: number
+        private _timeout: number
     ) {
 
         super();
@@ -59,6 +59,22 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
         this._socket = socket;
 
         socket.setNoDelay(true);
+    }
+
+    public get timeout(): number {
+
+        return this._timeout;
+    }
+
+    public set timeout(v: number) {
+
+        if (!Number.isSafeInteger(v) || v < 0) {
+
+            throw new LwDFXError('invalid_timeout', 'Invalid timeout value.');
+        }
+
+        this._timeout = v;
+        this._socket?.setTimeout(v);
     }
 
     public get finished(): boolean {
@@ -172,8 +188,9 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
         this._socket!
             .removeAllListeners()
-            .setTimeout(this.timeout, () => {
+            .on('timeout', () => {
 
+                this.emit('timeout');
                 this._socket?.destroy(new LwDFXError('timeout', 'Connection timeout'));
             })
             .on('close', () => {
@@ -201,6 +218,11 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
                     this.destroy();
                 }
             });
+
+        if (this._timeout) {
+
+            this._socket!.setTimeout(this._timeout);
+        }
     }
 
     protected abstract _handshake(
@@ -237,22 +259,17 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
 
         callback = once(callback);
 
-        const timer = setTimeout(() => {
+        if (handshakeTimeout > 0) {
 
-            callback(new LwDFXError('timeout', 'Handshake timeout'));
+            this._socket!.setTimeout(handshakeTimeout, () => {
 
-        }, handshakeTimeout);
-
-        this._socket!.setTimeout(handshakeTimeout, () => {
-
-            this._socket!.destroy(new LwDFXError('timeout', 'Handshake timeout'));
-        });
+                this._socket!.destroy(new LwDFXError('timeout', 'Handshake timeout'));
+            });
+        }
 
         this._socket!.on('close', () => {
 
             callback(new LwDFXError('conn_lost', 'Connection closed'));
-
-            clearTimeout(timer);
 
             this._socket?.removeAllListeners();
             this._socket = null;
@@ -271,8 +288,6 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
                 callback(err);
                 return;
             }
-
-            clearTimeout(timer);
 
             this._setupSocket();
 
