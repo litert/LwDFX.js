@@ -1,5 +1,9 @@
 # Changes
 
+## v1.1.1
+
+- fix(project): use native `Error` as the based class for exceptions.
+
 ## v1.1.0
 
 - feat(protocol): added unix socket supports.

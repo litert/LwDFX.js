@@ -17,21 +17,15 @@
 /**
  * The error class for LwDFX.
  */
-export class LwDFXError {
-
-    public readonly stack!: string;
+export class LwDFXError extends Error {
 
     public constructor(
-        public readonly name: string,
-        public readonly message: string,
+        name: string,
+        message: string,
         public readonly origin: unknown = null
     ) {
 
-        Error.captureStackTrace(this, LwDFXError);
-    }
-
-    public toString(): string {
-
-        return this.stack;
+        super(message);
+        this.name = name;
     }
 }
