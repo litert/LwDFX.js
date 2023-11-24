@@ -289,8 +289,15 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
                 return;
             }
 
-            this._setupSocket();
+            try {
 
+                this._setupSocket();
+            }
+            catch (e) {
+
+                callback(e);
+                return;
+            }
             callback(null, this);
         });
     }

@@ -1,5 +1,9 @@
 # Changes
 
+## v1.1.2
+
+- fix(project): crash when connection lost during handshake.
+
 ## v1.1.1
 
 - fix(project): use native `Error` as the based class for exceptions.
