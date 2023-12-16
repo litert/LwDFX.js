@@ -219,10 +219,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
                 }
             });
 
-        if (this._timeout) {
-
-            this._socket!.setTimeout(this._timeout);
-        }
+        this._socket!.setTimeout(this._timeout);
     }
 
     protected abstract _handshake(

@@ -1,5 +1,9 @@
 # Changes
 
+## v1.1.3
+
+- fix(connection): did not reset timeout if it is zero.
+
 ## v1.1.2
 
 - fix(project): crash when connection lost during handshake.
