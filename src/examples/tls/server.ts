@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as LwDFX from '../../lib';
+import * as LwDFX from '../../lib/index.js';
 import * as FS from 'node:fs';
 
 const server = LwDFX.createServer({
@@ -27,8 +27,8 @@ const gateway = LwDFX.Tls.createGateway(server, {
     hostname: process.argv[2] ?? '127.0.0.1',
     port: parseInt(process.argv[3] ?? '9330'),
     tlsOptions: {
-        cert: FS.readFileSync(`${__dirname}/../../temp/newcerts/server-lwdfx-tls-server.fullchain.pem`, 'utf-8'),
-        key: FS.readFileSync(`${__dirname}/../../temp/private/server-lwdfx-tls-server.key.pem`, 'utf-8'),
+        cert: FS.readFileSync(`${import.meta.dirname}/../../temp/newcerts/server-lwdfx-tls-server.fullchain.pem`, 'utf-8'),
+        key: FS.readFileSync(`${import.meta.dirname}/../../temp/private/server-lwdfx-tls-server.key.pem`, 'utf-8'),
     }
 });
 

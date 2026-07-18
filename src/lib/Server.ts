@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import type * as D from './Decl';
-import * as C from './Constant';
+import type * as D from './Decl.js';
+import * as C from './Constant.js';
 import * as $Net from 'node:net';
 import * as $Events from 'node:events';
-import { ServerConnection } from './ServerConnection';
-import { LwDFXError } from './Errors';
+import { ServerConnection } from './ServerConnection.js';
+import { LwDFXError } from './Errors.js';
 
 export type ICreateServerOptions = Partial<Pick<
     D.IServer,

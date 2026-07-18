@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 
 import * as $Net from 'node:net';
-import * as C from './Constant';
-import * as D from './Decl';
-import { AbstractConnection } from './AbstractConnection';
-import { LwDFXError } from './Errors';
+import * as C from './Constant.js';
+import * as D from './Decl.js';
+import { AbstractConnection } from './AbstractConnection.js';
+import { LwDFXError } from './Errors.js';
 
 const FRAME_SERVER_HELLO_REJECT_VERSION = Buffer.allocUnsafe(15);
 
@@ -57,7 +57,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
         callback: D.IErrorCallback<unknown>,
     ): void {
 
-        this._socket!.on('data', (chunk) => {
+        this._socket!.on('data', (chunk: Buffer) => {
 
             if (chunk.byteLength < 10) {
 
@@ -92,7 +92,7 @@ export class ServerConnection extends AbstractConnection implements D.IConnectio
                 return;
             }
 
-            if (availableVersions.indexOf(C.VERSION_1) === -1) {
+            if (!availableVersions.includes(C.VERSION_1)) {
 
                 callback(new LwDFXError('invalid_version', 'No compatible version offered'));
                 this._sendServerHelloRejectedVersion();

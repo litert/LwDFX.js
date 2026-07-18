@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-export * from './Decl';
-export * from './ClientConnection';
-export * from './Server';
-export * from './Encoder';
-export * as Constants from './Constant';
-export * from './Errors';
-export * as Tcp from './Tcp';
-export * as Tls from './Tls';
-export * as UnixSocket from './UnixSocket';
+export * from './Decl.js';
+export * from './ClientConnection.js';
+export * from './Server.js';
+export * from './Encoder.js';
+export * as Constants from './Constant.js';
+export * from './Errors.js';
+export * as Tcp from './Tcp/index.js';
+export * as Tls from './Tls/index.js';
+export * as UnixSocket from './UnixSocket/index.js';

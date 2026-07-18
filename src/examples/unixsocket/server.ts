@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as LwDFX from '../../lib';
+import * as LwDFX from '../../lib/index.js';
 
 const server = LwDFX.createServer({
     alpWhitelist: ['b1', 'b2'],

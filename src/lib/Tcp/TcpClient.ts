@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 
 import * as $Net from 'node:net';
-import * as Constants from './../Constant';
-import * as D from './../Decl';
-import * as C from './TcpCommon';
-import { ClientConnection } from '../ClientConnection';
-import { LwDFXError } from '../Errors';
+import * as Constants from './../Constant.js';
+import * as D from './../Decl.js';
+import * as C from './TcpCommon.js';
+import { ClientConnection } from '../ClientConnection.js';
+import { LwDFXError } from '../Errors.js';
 
 export interface ITcpClientOptions extends D.IConnectOptions {
 

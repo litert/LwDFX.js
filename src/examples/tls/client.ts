@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as LwDFX from '../../lib';
+import * as LwDFX from '../../lib/index.js';
 import * as FS from 'node:fs';
 
 (async () => {
@@ -24,7 +24,7 @@ import * as FS from 'node:fs';
         hostname: process.argv[2] ?? '127.0.0.1',
         port: parseInt(process.argv[3] ?? '9330'),
         tlsOptions: {
-            ca: [FS.readFileSync(`${__dirname}/../../temp/ca.pem`, 'utf-8')],
+            ca: [FS.readFileSync(`${import.meta.dirname}/../../temp/ca.pem`, 'utf-8')],
             servername: process.argv[4] ?? 'lwdfx-tls-server',
         }
     });

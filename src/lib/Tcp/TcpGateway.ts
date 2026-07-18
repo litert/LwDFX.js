@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import type * as D from './../Decl';
+import type * as D from './../Decl.js';
 import * as $Net from 'node:net';
-import { LwDFXError } from './../Errors';
-import * as C from './TcpCommon';
-import { AbstractGateway } from '../AbstractGateway';
-import { ServerConnection } from '../ServerConnection';
+import { LwDFXError } from './../Errors.js';
+import * as C from './TcpCommon.js';
+import { AbstractGateway } from '../AbstractGateway.js';
+import { ServerConnection } from '../ServerConnection.js';
 
 export type ITcpGatewayOptions = Partial<Pick<
     ITcpGateway,

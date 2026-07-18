@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as C from './Constant';
-import * as D from './Decl';
-import { AbstractConnection } from './AbstractConnection';
-import { LwDFXError } from './Errors';
+import * as C from './Constant.js';
+import * as D from './Decl.js';
+import { AbstractConnection } from './AbstractConnection.js';
+import { LwDFXError } from './Errors.js';
 
 export class ClientConnection extends AbstractConnection implements D.IConnection {
 
@@ -28,7 +28,7 @@ export class ClientConnection extends AbstractConnection implements D.IConnectio
 
         this._sendClientHello(alpNames);
 
-        this._socket!.on('data', (chunk) => {
+        this._socket!.on('data', (chunk: Buffer) => {
 
             if (chunk.byteLength < 10) {
 

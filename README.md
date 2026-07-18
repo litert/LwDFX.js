@@ -15,7 +15,7 @@ npm install @litert/lwdfx --save
 
 ## Requirements
 
-- Node.js v18.x (Or newer)
+- Node.js v20.11 (Or newer)
 - TypeScript v5.0.x (Or newer)
 
 ## Documents

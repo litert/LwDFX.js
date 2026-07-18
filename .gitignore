@@ -3,3 +3,6 @@
 /examples/
 /test/
 /temp/
+/skills-lock.json
+/.agents/skills/
+/.ai/

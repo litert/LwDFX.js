@@ -1,8 +1,10 @@
 /.git/
+/.agents/
+/.ai/
 /.vscode/
 /.gitignore
 /.npmignore
-/.eslintrc
+/skills-lock.json
 /tsconfig.json
 /node_modules/
 /examples/
@@ -10,7 +12,7 @@
 /temp/
 /package-lock.json
 /init-test-data.sh
-/.eslintignore
 /.husky/commit-msg
 /commitlint.config.js
 /docker/
+/eslint.config.js

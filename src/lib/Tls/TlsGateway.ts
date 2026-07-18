@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import type * as D from './../Decl';
+import type * as D from './../Decl.js';
 import * as $Tls from 'node:tls';
-import { LwDFXError } from './../Errors';
-import * as C from './TlsCommon';
-import { ServerConnection } from '../ServerConnection';
-import { AbstractGateway } from '../AbstractGateway';
+import { LwDFXError } from './../Errors.js';
+import * as C from './TlsCommon.js';
+import { ServerConnection } from '../ServerConnection.js';
+import { AbstractGateway } from '../AbstractGateway.js';
 
 export interface ITlsGatewayOptions extends Partial<Pick<
     ITlsGateway,
@@ -201,7 +201,6 @@ class TlsGateway4LwDFX extends AbstractGateway implements ITlsGateway {
         return new Promise((resolve, reject) => {
 
             const tlsListener = $Tls.createServer({
-                // eslint-disable-next-line @typescript-eslint/naming-convention
                 ALPNProtocols: [C.DEFAULT_ALPN_PROTOCOL],
                 ...this._tlsOptions,
             });

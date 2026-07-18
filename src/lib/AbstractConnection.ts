@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 import type * as $Net from 'node:net';
 import * as $Events from 'node:events';
-import * as D from './Decl';
-import { LwDFXError } from './Errors';
-import { LwDFXEncoder } from './Encoder';
+import * as D from './Decl.js';
+import { LwDFXError } from './Errors.js';
+import { LwDFXEncoder } from './Encoder.js';
 
 const CLOSE_FRAME = Buffer.from([0x00, 0x00, 0x00, 0x00]);
 
@@ -201,7 +201,7 @@ export abstract class AbstractConnection extends $Events.EventEmitter implements
             .on('error', (err) => this.emit('error', err))
             .on('end', () => this.emit('end'))
             .on('finish', () => this.emit('finish'))
-            .on('data', (d) => {
+            .on('data', (d: Buffer) => {
 
                 try {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-export * from './UnixSocketGateway';
-export * from './UnixSocketClient';
-export * from './UnixSocketCommon';
+export * from './UnixSocketGateway.js';
+export * from './UnixSocketClient.js';
+export * from './UnixSocketCommon.js';

@@ -1,5 +1,9 @@
 # Changes
 
+## v2.0.0
+
+- refactor: migrated to ESM module system.
+
 ## v1.1.3
 
 - fix(connection): did not reset timeout if it is zero.

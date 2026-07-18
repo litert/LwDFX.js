@@ -1,5 +1,5 @@
 import * as Assert from 'node:assert';
-import * as LwDFX from '../lib';
+import * as LwDFX from '../lib/index.js';
 
 describe('Encoding', function(): void {
 

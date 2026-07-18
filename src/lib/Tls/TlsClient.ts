@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <i@fenying.net>
+ * Copyright 2026 Angus.Fenying <i@fenying.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 import type * as $Net from 'node:net';
 import * as $Tls from 'node:tls';
-import * as Constants from './../Constant';
-import * as D from './../Decl';
-import * as C from './TlsCommon';
-import { ClientConnection } from '../ClientConnection';
-import { LwDFXError } from '../Errors';
+import * as Constants from './../Constant.js';
+import * as D from './../Decl.js';
+import * as C from './TlsCommon.js';
+import { ClientConnection } from '../ClientConnection.js';
+import { LwDFXError } from '../Errors.js';
 
 export interface ITlsClientOptions extends D.IConnectOptions {
 
@@ -81,7 +81,6 @@ function netConnect(opts: ITlsClientOptions): Promise<$Net.Socket> {
         }
 
         const socket = $Tls.connect(opts.port ?? C.DEFAULT_PORT, opts.hostname ?? C.DEFAULT_HOSTNAME, {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
             'ALPNProtocols': [C.DEFAULT_ALPN_PROTOCOL],
             ...(opts.tlsOptions ?? {})
         }, () => {
